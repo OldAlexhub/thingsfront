@@ -4,6 +4,14 @@ Android app by **Old Alex Hub**. Support, privacy and business contact: **info@o
 
 Bare React Native 0.88.1 / React 19.3 / TypeScript. Existing project retained; iOS is not a release target. Android package: `com.oldalexhub.thingstodo`.
 
+## Current release and server
+
+Version 1.1.0 uses <https://things.server.oldalexhub.com>. See [executed release checks](QA-1.1.0.md) and [privacy policy](privacy.md).
+
+The backend is a separate repository: <https://github.com/OldAlexhub/things>. Its deployed source on Desktop-cakemlu is `C:\Backends\thingstodo-server`. The `server` commands below refer to that separate backend checkout.
+
+Add a city in Content Studio under **Destinations > Enable a city**. Search, choose the city, confirm its timezone, and enable it. Imports and venue photographs run automatically; there is no Android rebuild or manual image upload step.
+
 ## Start
 
 ```powershell
