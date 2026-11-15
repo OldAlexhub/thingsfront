@@ -57,3 +57,7 @@ Keep signing keys and passwords out of release assets. Back them up privately us
 ## Production candidate
 
 Production APK/AAB generation uses the configured HTTPS hostname, cleartext disabled and the supplied real AdMob units behind the consent/adult gate. The domain has not passed a live health check because TLS is currently failing. The device feature checks above were performed on the local QA configuration. Production delivery still requires successful hosted API, consent and Play testing. The production artifacts are separate from the QA package.
+
+## Free-API and deployment-default update
+
+OpenStreetMap is now the only registered content API. Free imports, recurring synchronization, initial seeding and secure first-run administrator creation default to enabled. The city picker refreshes its server-provided city list each time it opens. The expanded suite passes 36 backend tests and 11 mobile tests, including server-only city publication, automatic per-city job creation, provider allowlisting and administrator bootstrap preservation. The admin browser check confirmed that only OpenStreetMap is offered. Both signed artifact sets were rebuilt; the refreshed QA APK installed and the city picker was inspected successfully.
