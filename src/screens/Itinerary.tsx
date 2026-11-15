@@ -17,8 +17,10 @@ import {
   Check,
 } from 'lucide-react-native';
 import { api, native } from '../api';
+import { useAds } from '../ads';
 import { useLocal } from '../storage';
 import { useTheme } from '../theme';
+import { distanceLabel, localizeDistanceText, timeLabel } from '../units';
 import {
   AppShell,
   Header,
@@ -36,7 +38,7 @@ export function planText(plan: Plan) {
     `${plan.cityName} · ${plan.date}`,
     `Timezone: ${plan.timezone}`,
     ...plan.stops.flatMap((s, i) => [
-      `${i + 1}. ${s.startTime}–${s.endTime}: ${s.activity.title}`,
+      `${i + 1}. ${timeLabel(s.startTime)} - ${timeLabel(s.endTime)}: ${s.activity.title}`,
       s.activity.location?.address || '',
       `Travel: about ${s.travel.minutes} min (rough estimate)`,
       ...s.warnings,
@@ -53,10 +55,24 @@ export function ItineraryScreen() {
     nav = useNavigation<any>(),
     inset = useSafeAreaInsets(),
     t = useTheme(),
-    { savePlan } = useLocal(),
+    ads = useAds(),
+    { savePlan, state } = useLocal(),
     [plan, setPlan] = useState<Plan>(route.params.plan),
     [busy, setBusy] = useState(false),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState(false),
+    [showNotes, setShowNotes] = useState(false);
+  function saveDay() {
+    savePlan(plan);
+    setSaved(true);
+    Alert.alert('Day saved', 'Your itinerary is ready offline in Saved.', [
+      {
+        text: 'Done',
+        onPress: () => {
+          if (!saved) void ads.completedAction();
+        },
+      },
+    ]);
+  }
   async function recalculate(ids: string[]) {
     setBusy(true);
     try {
@@ -142,6 +158,7 @@ export function ItineraryScreen() {
           >
             <PhotoView
               photo={item.activity.images?.[0]}
+              activity={item.activity}
               style={{ height: 150 }}
             />
             <View style={{ padding: 18 }}>
@@ -149,7 +166,7 @@ export function ItineraryScreen() {
                 <Label
                   style={{ fontSize: 12, color: t.teal, fontWeight: '800' }}
                 >
-                  {item.startTime} – {item.endTime}
+                  {timeLabel(item.startTime)} - {timeLabel(item.endTime)}
                 </Label>
                 <Pressable
                   disabled={busy}
@@ -165,17 +182,22 @@ export function ItineraryScreen() {
                 {item.activity.title}
               </Label>
               <Label muted style={{ fontSize: 12, marginTop: 8 }}>
-                About {item.travel.minutes} min travel · geographic estimate
+                {distanceLabel(item.travel.distanceKm, state.distanceUnit)} ·
+                about {item.travel.minutes} min travel
               </Label>
               <Label style={{ fontSize: 13, marginTop: 8 }}>
                 {item.groupCost === null
-                  ? 'Group price unknown'
+                  ? 'Check admission with the venue'
                   : `Estimated admission: $${item.groupCost.toFixed(2)}`}
               </Label>
-              <Label muted style={{ fontSize: 12, marginTop: 8 }}>
-                {item.reasons.join(' · ')}
-              </Label>
-              {item.warnings.map((warning, i) => (
+              {showNotes && (<Label muted style={{ fontSize: 12, marginTop: 8 }}>
+                {item.reasons
+                  .map(reason =>
+                    localizeDistanceText(reason, state.distanceUnit),
+                  )
+                  .join(' · ')}
+              </Label>)}
+              {showNotes && item.warnings.map((warning, i) => (
                 <Label key={i} muted style={{ fontSize: 11, marginTop: 6 }}>
                   • {warning}
                 </Label>
@@ -267,7 +289,7 @@ export function ItineraryScreen() {
             />
             <View style={{ paddingHorizontal: 22, marginBottom: 20 }}>
               <Label muted>
-                {plan.timezone} · {plan.stops.length} stops ·{' '}
+                {plan.stops.length} stops ·{' '}
                 {plan.input.transport}
               </Label>
               <View
@@ -279,7 +301,7 @@ export function ItineraryScreen() {
                 }}
               >
                 <Label muted style={{ fontSize: 12 }}>
-                  KNOWN ADMISSION SUBTOTAL
+                  ESTIMATED GROUP ADMISSION
                 </Label>
                 <Label
                   style={{ fontSize: 34, fontWeight: '800', marginVertical: 8 }}
@@ -288,12 +310,19 @@ export function ItineraryScreen() {
                 </Label>
                 <Label muted style={{ fontSize: 12 }}>
                   ${plan.remainingAdmissionBudget.toFixed(2)} of admission
-                  budget remains · {plan.unknownCostCount} unknown prices
+                  budget remains{plan.unknownCostCount > 0 ? ` - ${plan.unknownCostCount} prices to check` : ''}
                 </Label>
               </View>
-              {plan.warnings.map((w, i) => (
-                <Notice key={i}>{w}</Notice>
-              ))}
+              <Label muted style={{ fontSize: 12, marginVertical: 14 }}>
+                Local times in {plan.cityName}. Travel is estimated; meals and
+                transport are extra. Check venue hours before going.
+              </Label>
+              <Button
+                title={saved ? 'Day saved' : 'Save this day'}
+                disabled={busy || !plan.stops.length}
+                onPress={saveDay}
+              />
+              <View style={{ height: 12 }} />
               {busy && (
                 <Notice>Recalculating the route, timing and costs…</Notice>
               )}
@@ -348,6 +377,16 @@ export function ItineraryScreen() {
               paddingBottom: Math.max(inset.bottom, 18) + 24,
             }}
           >
+            <Button
+              secondary
+              title={
+                showNotes ? 'Hide planning notes' : 'Planning notes & details'
+              }
+              onPress={() => setShowNotes(!showNotes)}
+            />
+            {showNotes &&
+              plan.warnings.map((w, i) => <Notice key={i}>{w}</Notice>)}
+            <View style={{ height: 18 }} />
             {plan.breaks.length > 0 && (
               <>
                 <Label
@@ -361,7 +400,7 @@ export function ItineraryScreen() {
                     key={i}
                     style={{ fontSize: 13, marginBottom: 8 }}
                   >
-                    {b.startTime}–{b.endTime} · {b.note}
+                    {timeLabel(b.startTime)} - {timeLabel(b.endTime)} · {b.note}
                   </Label>
                 ))}
               </>
@@ -376,14 +415,7 @@ export function ItineraryScreen() {
                   <Bookmark color="#fff" size={18} />
                 )
               }
-              onPress={() => {
-                savePlan(plan);
-                setSaved(true);
-                Alert.alert(
-                  'Day saved',
-                  'You can read this itinerary offline from Saved.',
-                );
-              }}
+              onPress={saveDay}
             />
             <View style={[spacing.row, { marginTop: 12 }]}>
               <Button

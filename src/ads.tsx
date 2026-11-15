@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { View, Text, Alert, AppState } from 'react-native';
+import { View, Text, Alert, AppState, useWindowDimensions } from 'react-native';
 import mobileAds, {
   AdsConsent,
   BannerAd,
@@ -25,7 +25,7 @@ const Context = createContext({
   status: 'Checking advertising availability.',
   retry: () => {},
   privacy: async () => {},
-  completedVisit: async () => {},
+  completedAction: async () => {},
 });
 export function AdsProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false),
@@ -144,7 +144,7 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
       );
     }
   }
-  async function completedVisit() {
+  async function completedAction() {
     if (
       !ready ||
       !loaded.current ||
@@ -178,7 +178,7 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
         status,
         retry: () => setAttempt(v => v + 1),
         privacy,
-        completedVisit,
+        completedAction,
       }}
     >
       {children}
@@ -190,40 +190,66 @@ export function useAds() {
 }
 export function SafeAdContainer() {
   const { ready } = useAds(),
+    window = useWindowDimensions(),
+    [width, setWidth] = useState(Math.floor(window.width - 44)),
     [failed, setFailed] = useState(false),
+    [loaded, setLoaded] = useState(false),
     t = useTheme();
   useEffect(() => {
+    setLoaded(false);
+  }, [width, ready]);
+  useEffect(() => {
     if (!failed) return;
-    const timer = setTimeout(() => setFailed(false), 60000);
+    const timer = setTimeout(() => {
+      setFailed(false);
+      setLoaded(false);
+    }, 60000);
     return () => clearTimeout(timer);
   }, [failed]);
   if (!ready || failed) return null;
   return (
     <View
+      testID="ad-slot"
+      onLayout={event => {
+        const measured = Math.floor(event.nativeEvent.layout.width);
+        if (measured > 0) setWidth(measured);
+      }}
       style={{
         alignItems: 'center',
-        paddingVertical: 16,
-        marginVertical: 10,
+        width: '100%',
         backgroundColor: t.surface,
+        borderRadius: 16,
+        overflow: 'hidden',
+        marginVertical: loaded ? 18 : 0,
+        opacity: loaded ? 1 : 0,
+        maxHeight: loaded ? undefined : 1,
       }}
     >
-      <Text
+      <View
         style={{
-          fontSize: 9,
-          letterSpacing: 2,
-          color: t.muted,
-          marginBottom: 6,
+          alignSelf: 'stretch',
+          paddingHorizontal: 14,
+          paddingVertical: 10,
         }}
       >
-        ADVERTISEMENT
-      </Text>
+        <Text style={{ fontSize: 9, letterSpacing: 1.5, color: t.muted }}>
+          ADVERTISEMENT
+        </Text>
+      </View>
       <BannerAd
+        key={width}
         unitId={__DEV__ || native?.QA_BUILD ? TestIds.BANNER : BANNER}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
+        width={width}
+        maxHeight={180}
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-        onAdLoaded={() => console.info('ThingsToDo ads: banner loaded')}
+        onAdLoaded={() => {
+          setLoaded(true);
+          console.info('ThingsToDo ads: banner loaded');
+        }}
         onAdFailedToLoad={error => {
           console.warn('ThingsToDo ads: banner unavailable', error.message);
+          setLoaded(false);
           setFailed(true);
         }}
       />

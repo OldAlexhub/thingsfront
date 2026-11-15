@@ -117,7 +117,12 @@ export function DetailScreen() {
         >
           <PhotoView
             photo={a.images?.[0]}
-            style={{ height: 300, marginHorizontal: 14, borderRadius: 24 }}
+            activity={a}
+            style={{
+              height: a.images?.length ? 260 : 160,
+              marginHorizontal: 18,
+              borderRadius: 24,
+            }}
           />
         </Pressable>
         <View style={{ padding: 22 }}>
@@ -188,7 +193,7 @@ export function DetailScreen() {
                   ? a.priceInformation.adult === 0
                     ? 'Free'
                     : `$${a.priceInformation.adult}`
-                  : 'Unknown'}
+                  : 'Check venue'}
               </Label>
               <Label muted style={{ fontSize: 11 }}>
                 {a.priceInformation?.perGroup
@@ -217,10 +222,18 @@ export function DetailScreen() {
               <Label muted style={{ fontSize: 11 }}>
                 {a.estimatedDuration
                   ? 'Estimated minutes'
-                  : 'Visit duration unknown'}
+                  : 'Plan your own pace'}
               </Label>
             </View>
           </View>
+          {!a.priceInformation?.known &&
+            (a.bookingUrl || a.officialWebsite) && (
+              <Button
+                secondary
+                title="Check current prices"
+                onPress={() => openUrl(a.bookingUrl || a.officialWebsite)}
+              />
+            )}
           {a.priceInformation?.note && (
             <Label muted>{a.priceInformation.note}</Label>
           )}
@@ -248,7 +261,9 @@ export function DetailScreen() {
           >
             Good to know
           </Label>
-          <Label muted>Setting: {a.environment || 'Unknown'}</Label>
+          {a.environment && a.environment !== 'unknown' && (
+            <Label muted>Setting: {a.environment}</Label>
+          )}
           <Label muted>
             Accessibility:{' '}
             {a.accessibility || 'Not verified. Contact the venue.'}
@@ -334,7 +349,7 @@ export function DetailScreen() {
                     ? old.visited.filter(v => v !== a._id)
                     : [a._id, ...old.visited].slice(0, 500),
                 }));
-                if (!visited) void ads.completedVisit();
+                if (!visited) void ads.completedAction();
               }}
             />
             <Button

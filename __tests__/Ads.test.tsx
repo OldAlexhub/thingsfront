@@ -27,7 +27,7 @@ jest.mock('react-native-google-mobile-ads', () => ({
   },
   MaxAdContentRating: { PG: 'PG' },
   TestIds: { INTERSTITIAL: 'test-interstitial', BANNER: 'test-banner' },
-  BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: 'adaptive' },
+  BannerAdSize: { INLINE_ADAPTIVE_BANNER: 'inline' },
   BannerAd: () => null,
   AdEventType: { LOADED: 'loaded', ERROR: 'error', CLOSED: 'closed' },
   InterstitialAd: {
@@ -115,15 +115,15 @@ test('interstitial is capped and a failed show never rejects the completed actio
   jest.spyOn(Date, 'now').mockImplementation(() => now);
   await mount();
   mockListeners.loaded();
-  await ads.completedVisit();
+  await ads.completedAction();
   expect(mockShow).not.toHaveBeenCalled();
   now += 6 * 60000;
   mockShow.mockRejectedValueOnce(new Error('Ad unavailable'));
-  await expect(ads.completedVisit()).resolves.toBeUndefined();
+  await expect(ads.completedAction()).resolves.toBeUndefined();
   expect(mockShow).toHaveBeenCalledTimes(1);
   mockListeners.loaded();
   now += 60000;
-  await ads.completedVisit();
+  await ads.completedAction();
   expect(mockShow).toHaveBeenCalledTimes(1);
 });
 
@@ -179,4 +179,17 @@ test('privacy changes stop ads if Google no longer permits requests', async () =
   mockConsent.mockResolvedValueOnce({ canRequestAds: false });
   await act(async () => ads.privacy());
   expect(ads.ready).toBe(false);
+});
+
+test('inline banners use the measured card width instead of overflowing the feed', async () => {
+  await mount();
+  await act(async () =>
+    tree!.root
+      .findByProps({ testID: 'ad-slot' })
+      .props.onLayout({ nativeEvent: { layout: { width: 312 } } }),
+  );
+  const banner = tree!.root.findByType(BannerAd);
+  expect(banner.props.width).toBe(312);
+  expect(banner.props.maxHeight).toBe(180);
+  expect(banner.props.size).toBe('inline');
 });

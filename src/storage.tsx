@@ -17,6 +17,7 @@ export type LocalState = {
   childAges: number[];
   interests: string[];
   theme: 'system' | 'dark' | 'light';
+  distanceUnit: 'mi' | 'km';
   favorites: Activity[];
   bucket: Activity[];
   visited: string[];
@@ -34,6 +35,7 @@ export const initialState: LocalState = {
   childAges: [],
   interests: [],
   theme: 'system',
+  distanceUnit: 'mi',
   favorites: [],
   bucket: [],
   visited: [],
@@ -62,6 +64,7 @@ export function retainedActivity(a: Activity): Activity {
 }
 export function normalizeState(raw: Partial<LocalState>): LocalState {
   const state = { ...initialState, ...raw };
+  state.distanceUnit = raw.distanceUnit === 'km' ? 'km' : 'mi';
   for (const key of ['favorites', 'bucket', 'recent'] as const)
     state[key] = (Array.isArray(raw[key]) ? raw[key]! : [])
       .filter(a => a && typeof a._id === 'string')

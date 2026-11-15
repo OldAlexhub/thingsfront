@@ -65,6 +65,7 @@ export type Activity = {
     known: boolean;
     adult?: number;
     child?: number;
+    childBands?: { minAge: number; maxAge: number; amount: number }[];
     perGroup?: boolean;
     currency: string;
     note?: string;

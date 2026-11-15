@@ -188,7 +188,7 @@ export function DiscoverScreen() {
         <PhotoView
           photo={city.heroImage}
           decorative
-          style={{ height: 430, marginHorizontal: 14, borderRadius: 28 }}
+          style={{ height: 320, marginHorizontal: 18, borderRadius: 28 }}
         >
           <View
             style={{
@@ -264,7 +264,9 @@ export function DiscoverScreen() {
             </Label>
           </Pressable>
         )}
-        <SafeAdContainer />
+        <View style={{ paddingHorizontal: 22 }}>
+          <SafeAdContainer />
+        </View>
         <View style={{ paddingHorizontal: 22, marginTop: 24 }}>
           <Pressable
             accessibilityRole="button"
@@ -331,46 +333,48 @@ export function DiscoverScreen() {
         {loading && !home ? (
           <Loading />
         ) : (
-          home?.sections.map(s => (
-            <View key={s.key} style={spacing.section}>
-              <SectionHeading
-                title={s.title}
-                onPress={() =>
-                  nav.navigate('Explore', { events: s.type === 'events' })
-                }
-              />
-              {s.items.length ? (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 14 }}
-                >
-                  {s.items.map((a, i) => (
-                    <Card
-                      activity={a}
-                      key={a._id}
-                      wide
-                      index={i}
-                      onPress={() => detail(a)}
-                    />
-                  ))}
-                </ScrollView>
-              ) : (
-                <View
-                  style={{
-                    backgroundColor: t.surface,
-                    borderRadius: 20,
-                    padding: 23,
-                  }}
-                >
-                  <Label muted>
-                    New experiences are being added. Check back soon or explore
-                    another category.
-                  </Label>
-                </View>
-              )}
-            </View>
-          ))
+          home?.sections
+            .filter(s => s.items.length > 0)
+            .map(s => (
+              <View key={s.key} style={spacing.section}>
+                <SectionHeading
+                  title={s.title}
+                  onPress={() =>
+                    nav.navigate('Explore', { events: s.type === 'events' })
+                  }
+                />
+                {s.items.length ? (
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 14 }}
+                  >
+                    {s.items.map((a, i) => (
+                      <Card
+                        activity={a}
+                        key={a._id}
+                        wide
+                        index={i}
+                        onPress={() => detail(a)}
+                      />
+                    ))}
+                  </ScrollView>
+                ) : (
+                  <View
+                    style={{
+                      backgroundColor: t.surface,
+                      borderRadius: 20,
+                      padding: 23,
+                    }}
+                  >
+                    <Label muted>
+                      New experiences are being added. Check back soon or
+                      explore another category.
+                    </Label>
+                  </View>
+                )}
+              </View>
+            ))
         )}
         <View style={{ padding: 24, alignItems: 'center', gap: 5 }}>
           <Label style={[spacing.eyebrow, { color: t.teal }]}>

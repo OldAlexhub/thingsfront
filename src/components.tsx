@@ -28,12 +28,17 @@ import {
   Heart,
   MapPin,
   ArrowRight,
-  ImageIcon,
+  Trees,
+  Utensils,
+  Landmark,
+  Ticket,
   ChevronLeft,
   AlertCircle,
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from './theme';
+import { useData } from './data';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { useLocal } from './storage';
 import { BASE_URL } from './api';
 import type { Activity, Photo } from './types';
@@ -121,6 +126,8 @@ export function Button({
           color: secondary ? t.text : '#F8F6F0',
           fontWeight: '700',
           fontSize: 14,
+          flexShrink: 1,
+          textAlign: 'center',
         }}
       >
         {title}
@@ -297,16 +304,120 @@ export function Header({
     </View>
   );
 }
+export function ExperienceIllustration({ activity }: { activity?: Activity }) {
+  const { categories } = useData();
+  const slugs = categories
+    .filter(c => activity?.categories?.includes(c._id))
+    .map(c => c.slug)
+    .join(' ');
+  const key = [slugs, ...(activity?.tags || [])].join(' ');
+  const nature = /outdoor|nature|park/.test(key),
+    food = /food|drink|cafe/.test(key),
+    culture = /art|culture|history/.test(key);
+  const color = nature
+    ? '#176854'
+    : food
+    ? '#985B3D'
+    : culture
+    ? '#565393'
+    : '#145F78';
+  const bg = nature
+    ? '#E3EFE4'
+    : food
+    ? '#FAE9D9'
+    : culture
+    ? '#ECE8F6'
+    : '#DDEDF2';
+  const title = nature
+    ? 'A LITTLE FRESH AIR'
+    : food
+    ? 'FIND YOUR NEXT FAVORITE'
+    : culture
+    ? 'FOLLOW YOUR CURIOSITY'
+    : 'SOMETHING WORTH EXPLORING';
+  const Icon = nature ? Trees : food ? Utensils : culture ? Landmark : Ticket;
+  return (
+    <View
+      accessibilityLabel="Category illustration"
+      style={[StyleSheet.absoluteFill, { backgroundColor: bg }]}
+    >
+      <Svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 400 180"
+        preserveAspectRatio="xMidYMid slice"
+        style={StyleSheet.absoluteFill}
+      >
+        <Circle cx="340" cy="30" r="85" fill={color} opacity={0.08} />
+        <Circle cx="50" cy="190" r="120" fill={color} opacity={0.06} />
+        <Path
+          d="M-20 155 Q100 80 210 150 T440 110"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.5"
+          opacity={0.18}
+        />
+        <Path
+          d="M-20 172 Q120 100 230 170 T440 130"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.5"
+          opacity={0.12}
+        />
+        <Circle cx="285" cy="45" r="5" fill="#E4AA50" />
+        <Circle cx="97" cy="54" r="3" fill={color} opacity={0.4} />
+      </Svg>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+        }}
+      >
+        <View
+          style={{
+            width: 62,
+            height: 62,
+            borderRadius: 22,
+            backgroundColor: '#FFFFFF99',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon size={32} color={color} strokeWidth={1.5} />
+        </View>
+        <Text
+          style={{ color, fontSize: 8, letterSpacing: 2, fontWeight: '700' }}
+        >
+          {title}
+        </Text>
+      </View>
+    </View>
+  );
+}
+export function admissionLabel(a: Activity) {
+  const p = a.priceInformation;
+  if (!p?.known || typeof p.adult !== 'number') return 'Check admission';
+  if (p.adult === 0) return 'Free admission';
+  return `${new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: p.currency || 'USD',
+    maximumFractionDigits: 0,
+  }).format(p.adult)}${p.perGroup ? ' / group' : ' / adult'}`;
+}
 export function PhotoView({
   photo,
   style,
   children,
   decorative = false,
+  activity,
 }: {
   photo?: Photo;
   style?: ViewStyle;
   children?: React.ReactNode;
   decorative?: boolean;
+  activity?: Activity;
 }) {
   const t = useTheme();
   const [failed, setFailed] = useState(false);
@@ -350,17 +461,7 @@ export function PhotoView({
           />
         </View>
       ) : (
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { alignItems: 'center', justifyContent: 'center', gap: 12 },
-          ]}
-        >
-          <ImageIcon color={t.muted} size={34} strokeWidth={1} />
-          <Label muted style={{ fontSize: 11 }}>
-            More to discover
-          </Label>
-        </View>
+        <ExperienceIllustration activity={activity} />
       )}
       {children}
     </View>
@@ -381,11 +482,7 @@ export function Card({
     { state, toggleSave } = useLocal(),
     reduced = useReducedMotion();
   const saved = state.favorites.some(v => v._id === a._id);
-  const price = a.priceInformation?.known
-    ? a.priceInformation.adult === 0
-      ? 'FREE'
-      : `FROM $${a.priceInformation.adult}`
-    : 'PRICE UNKNOWN';
+  const price = admissionLabel(a);
   return (
     <Animated.View
       entering={
@@ -407,7 +504,11 @@ export function Card({
           borderColor: t.line,
         }}
       >
-        <PhotoView photo={a.images?.[0]} style={{ height: wide ? 188 : 210 }}>
+        <PhotoView
+          photo={a.images?.[0]}
+          activity={a}
+          style={{ height: a.images?.length ? (wide ? 170 : 190) : 140 }}
+        >
           <View
             style={{
               position: 'absolute',
@@ -427,7 +528,7 @@ export function Card({
                 letterSpacing: 1,
               }}
             >
-              {price}
+              {a.priceInformation?.known ? price : 'EXPLORE'}
             </Text>
           </View>
           <Pressable
@@ -466,12 +567,12 @@ export function Card({
             </Label>
           </View>
           <Label muted style={{ fontSize: 12, marginTop: 10 }}>
+            {price} ·{' '}
             {a.startAt
               ? new Date(a.startAt).toLocaleDateString()
               : a.estimatedDuration
               ? `${a.estimatedDuration.min}–${a.estimatedDuration.max} min`
-              : 'Duration varies'}{' '}
-            · {a.environment || 'Explore'}
+              : 'View details'}
           </Label>
           {a.unavailable && (
             <Label style={{ color: t.gold }}>

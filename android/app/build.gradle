@@ -116,6 +116,7 @@ android {
     }
     buildTypes {
         debug {
+            applicationIdSuffix ".dev"
             signingConfig signingConfigs.debug
             manifestPlaceholders['ttdCleartextTraffic'] = true
             buildConfigField 'String', 'API_BASE_URL', '"' + (providedApiUrl ? escapedApiUrl : 'http://10.0.2.2:3000') + '"'

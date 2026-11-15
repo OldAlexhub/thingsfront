@@ -31,6 +31,7 @@ import {
   spacing,
 } from '../components';
 import { SafeAdContainer } from '../ads';
+import { fromKilometers, toKilometers } from '../units';
 import { ExperienceMap } from './Map';
 import type { Activity } from '../types';
 export async function currentLocation() {
@@ -55,7 +56,7 @@ export function ExploreScreen() {
     nav = useNavigation<any>(),
     route = useRoute<any>(),
     { city, categories } = useData(),
-    { view, update } = useLocal();
+    { view, update, state } = useLocal();
   const [search, setSearch] = useState(''),
     [debounced, setDebounced] = useState(''),
     [category, setCategory] = useState(''),
@@ -177,8 +178,8 @@ export function ExploreScreen() {
         />
       </AppShell>
     );
-  return (
-    <AppShell>
+  const header = (
+    <>
       <Header
         title="Follow your curiosity."
         kicker={`EXPLORE ${city.name.toUpperCase()}`}
@@ -268,6 +269,11 @@ export function ExploreScreen() {
         )}
         {error && <Notice>{error}</Notice>}
       </View>
+    </>
+  );
+  return (
+    <AppShell>
+      {map && header}
       {map ? (
         <View style={{ flex: 1 }}>
           <ExperienceMap activities={items} onSelect={open} />
@@ -288,15 +294,17 @@ export function ExploreScreen() {
         </View>
       ) : (
         <FlatList
+          removeClippedSubviews={false}
           data={items}
           keyExtractor={a => a._id}
-          contentContainerStyle={{
-            padding: 22,
-            paddingTop: 5,
-            paddingBottom: 30,
-          }}
+          ListHeaderComponent={header}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 30 }}
           renderItem={({ item, index }) => (
-            <Card activity={item} index={index} onPress={() => open(item)} />
+            <View style={{ marginHorizontal: 22 }}>
+              <Card activity={item} index={index} onPress={() => open(item)} />
+              {index === Math.min(1, items.length - 1) && <SafeAdContainer />}
+            </View>
           )}
           refreshControl={
             <RefreshControl
@@ -308,7 +316,6 @@ export function ExploreScreen() {
               tintColor={t.teal}
             />
           }
-          ListHeaderComponent={items.length ? <SafeAdContainer /> : undefined}
           ListEmptyComponent={
             loading ? (
               <Loading />
@@ -343,7 +350,7 @@ export function ExploreScreen() {
             )
           }
           ListFooterComponent={
-            <View>
+            <View style={{ paddingHorizontal: 22 }}>
               {more && (
                 <Button
                   title={loading ? 'Loading…' : 'Explore more'}
@@ -465,9 +472,25 @@ export function ExploreScreen() {
               />
             </View>
             <Field
-              label="Radius (km)"
-              value={filters.radius}
-              onChangeText={v => filter('radius', v)}
+              label={`Search radius (${state.distanceUnit})`}
+              value={
+                filters.radius
+                  ? String(
+                      Math.round(
+                        fromKilometers(
+                          Number(filters.radius),
+                          state.distanceUnit,
+                        ) * 10,
+                      ) / 10,
+                    )
+                  : ''
+              }
+              onChangeText={v =>
+                filter(
+                  'radius',
+                  v ? String(toKilometers(Number(v), state.distanceUnit)) : '',
+                )
+              }
               keyboardType="numeric"
             />
             <Label muted>Sort experiences</Label>

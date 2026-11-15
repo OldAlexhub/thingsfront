@@ -95,6 +95,32 @@ export function SettingsScreen() {
               />
             ))}
           </View>
+          <Label
+            style={{
+              fontSize: 20,
+              fontWeight: '800',
+              marginTop: 24,
+              marginBottom: 12,
+            }}
+          >
+            Distance units
+          </Label>
+          <View style={{ flexDirection: 'row' }}>
+            <Chip
+              title="Miles"
+              selected={state.distanceUnit === 'mi'}
+              onPress={() => patch({ distanceUnit: 'mi' })}
+            />
+            <Chip
+              title="Kilometers"
+              selected={state.distanceUnit === 'km'}
+              onPress={() => patch({ distanceUnit: 'km' })}
+            />
+          </View>
+          <Label muted style={{ fontSize: 12 }}>
+            Used in search, day plans and travel distances.
+          </Label>
+          <View style={{ height: 18 }} />
           <View style={spacing.row}>
             <Field
               label="Default budget ($)"

@@ -80,7 +80,7 @@ function TabNavigator() {
       <Tabs.Screen
         name="Plan"
         component={PlannerScreen}
-        options={{ title: 'Plan My Day' }}
+        options={{ title: 'Plan My Day', tabBarLabel: 'Plan', tabBarAccessibilityLabel: 'Plan My Day' }}
       />
       <Tabs.Screen name="Saved" component={SavedScreen} />
       <Tabs.Screen name="Settings" component={SettingsScreen} />
@@ -145,18 +145,29 @@ function Root() {
         setIntro(false);
         return;
       }
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 420,
+      const introAnimation = Animated.sequence([
+        Animated.spring(scale, {
+          toValue: 1,
+          friction: 7,
+          tension: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(scale, {
-          toValue: 1.04,
-          duration: 420,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setIntro(false));
+        Animated.delay(350),
+        Animated.parallel([
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 420,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scale, {
+            toValue: 1.04,
+            duration: 420,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]);
+      introAnimation.start(() => setIntro(false));
+      return () => introAnimation.stop();
     }
   }, [ready, reduced, opacity, scale]);
   useEffect(() => {
@@ -263,6 +274,38 @@ function Root() {
             opacity,
           }}
         >
+          <View
+            style={{
+              position: 'absolute',
+              width: 320,
+              height: 320,
+              borderRadius: 160,
+              borderWidth: 1,
+              borderColor: '#12B8A624',
+              transform: [{ translateY: -30 }],
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              width: 420,
+              height: 420,
+              borderRadius: 210,
+              borderWidth: 1,
+              borderColor: '#12B8A612',
+              transform: [{ translateY: -30 }],
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              width: 170,
+              height: 170,
+              borderRadius: 85,
+              backgroundColor: '#12B8A60C',
+              transform: [{ translateY: -80 }],
+            }}
+          />
           <Animated.Image
             source={require('./assets/logo.png')}
             style={{ width: 150, height: 150, transform: [{ scale }] }}
