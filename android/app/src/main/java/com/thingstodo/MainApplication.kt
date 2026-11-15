@@ -1,4 +1,4 @@
-package com.thingstodo
+package com.oldalexhub.thingstodo
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -14,6 +14,7 @@ class MainApplication : Application(), ReactApplication {
       context = applicationContext,
       packageList =
         PackageList(this).packages.apply {
+          add(ThingsToDoPackage())
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // add(MyReactNativePackage())
         },

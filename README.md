@@ -1,97 +1,96 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Things to Do: Day Planner
 
-# Getting Started
+Android app by **Old Alex Hub**. Support, privacy and business contact: **info@oldalexhub.com**.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Bare React Native 0.88.1 / React 19.3 / TypeScript. Existing project retained; iOS is not a release target. Android package: `com.oldalexhub.thingstodo`.
 
-## Step 1: Start Metro
+## Start
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
+```powershell
+cd server
+npm ci
+npm run dev:local -- --import-osm
+# In another terminal:
+cd thingstodo
+npm ci
 npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+# In another terminal, with emulator running:
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+The local server listens on port 3000. The Android emulator reaches it through `http://10.0.2.2:3000`. Physical devices need `adb reverse tcp:3000 tcp:3000` and a debug build with `-PTTD_API_URL=http://127.0.0.1:3000`, or a real HTTPS backend. The local Content Studio is `http://localhost:3000`; local credentials are in `server/.local/admin-login.json`.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Production content comes entirely from the Express/MongoDB API. Cities, categories, collections, activities and events are not embedded in the app. Preferences, favorites, collections, visited IDs, recent searches and saved plans are device-local. A six-hour maximum API cache is further limited by provider expiry; cached responses are labeled. Saved licensed records lose expired provider fields and retain an unavailable label. Sharing/export intentionally leaves the app.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## App structure
 
-```sh
-bundle install
+- `App.tsx`: providers, five tabs, stack screens, native-to-React-Native branded launch transition, reduced-motion handling and update announcement.
+- `src/screens/`: Discover, Explore, Plan My Day, Saved, Settings, details/gallery, city selection, map, itinerary and legal text.
+- `src/api.ts`, `data.tsx`, `storage.tsx`: API boundary, city/category state and serialized local persistence.
+- `src/components.tsx`, `theme.ts`: shared layouts, cards, image/error fallbacks, dark/light/system themes and safe-area handling.
+- `src/ads.tsx`: consent, official debug/QA test IDs, production banner/interstitial IDs, failure isolation and frequency caps.
+- `android/.../ThingsToDoNative.kt`: optional approximate location, Storage Access Framework JSON exports and official Google Play update integration.
+- `assets/`: original generated logo, wordmark and master icon. Android resources include density-specific launcher icons, adaptive foreground/background, a themed monochrome silhouette and branded splash resources.
+- `store_assets/`: listing copy, icon, captions, disclosure notes and release text.
+
+## Behavior and limitations
+
+Search and pagination query real MongoDB records. Filters include known adult price, duration, category, environment, family suitability, age, approximate location and verified open-now information. Event date inputs currently use explicitly labeled UTC bounds. Map/list views show loaded results and can load more pages. Venue photography falls back gracefully when absent.
+
+The planner accepts local city date/time, start coordinates or optional location, adults/children, strict admission budget, interests, transport, pace, radius and meal breaks. The itinerary can be dragged or reordered with accessible arrows, replaced, removed, recalculated, saved, shared and exported. A saved itinerary remains readable offline; edits and generation require the backend. The engine is deterministic. Travel times are **rough geographic estimates**, not live routing; unknown duration uses a disclosed planning allowance. Food, travel, taxes and fees are not included in known admission subtotals.
+
+No notifications are sent and no notification permission is requested. Location is optional, approximate, requested on use, and never collected in the background. No public login is introduced. Plan inputs are sent to the backend for calculation without a stored user profile.
+
+SafeAreaProvider wraps the app. Screens, tab bar, scroll padding, keyboard forms and bottom controls use safe insets. Ads sit in feed content above the tab bar. Android `adjustResize` keeps forms usable with the keyboard. Reduced motion skips the intro and card entry effects. Photo galleries use a modal; no unsupported shared-image transition is promised.
+
+## Ads and updates
+
+AdMob application ID: `ca-app-pub-7831002909037560~1455645255`.
+
+Production banner: `ca-app-pub-7831002909037560/2277947348`.
+
+Production interstitial: `ca-app-pub-7831002909037560/2637039990`.
+
+Debug and explicitly marked QA builds use Google's test units. Production uses the supplied units. Ads remain off without adult confirmation and until UMP permits requests. SDK measurement is delayed. Requests are non-personalized, which does not mean no data processing. Configure applicable UMP messages in AdMob before distribution. Settings exposes privacy choices. Failed consent or ads leave the app functional.
+
+Interstitials are eligible only after marking a visit complete, after five minutes in the session, with at least 15 minutes between ads and at most three per UTC day. They are not triggered by launch, navigation, planning, exports or tab changes.
+
+The version API announces latest/minimum versions. Play Core checks actual availability; a server outage or unavailable Play update never permanently locks out users. Flexible downloads request a restart; immediate update flows resume when required by Play. Validate through a Play internal testing track because sideloaded builds cannot prove Play-delivered updates.
+
+## Build and release
+
+From the project root, beside `server/` and `thingstodo/`:
+
+```powershell
+python release.py --check-env
+python release.py --generate-key-only
+python release.py --api-url https://things.server.oldalexhub.com --skip-screenshots
+python release.py --qa-build --skip-screenshots
+python release.py --screenshots-only
+python release.py --skip-build
+python release.py --clean --api-url https://things.server.oldalexhub.com
+python release.py --no-clean --api-url https://things.server.oldalexhub.com
 ```
 
-Then, and every time you update your native dependencies, run:
+The standard-library-only helper detects Android Studio Java/JBR, SDK, wrapper and the existing project. It updates `local.properties`, creates signing only when missing, reuses the key, builds signed APK/AAB, and copies artifacts, branding, store assets and documentation to a directory outside the project. It also packages the server with non-secret deployment defaults, automatic first-run setup and free-data synchronization enabled. It supports interactive actual-device screenshots. Screenshot failures do not invalidate successful builds.
 
-```sh
-bundle exec pod install
+**Back up `android/app/signing/upload.keystore` and `android/keystore.properties` privately and encrypted.** They are ignored by Git and never copied into public release folders. Do not replace a signing key for an existing published app. The AAB is the Play upload format. The APK is for testing. Keep versionCode increasing for subsequent releases.
+
+Production builds use `https://things.server.oldalexhub.com` from the root `release-config.json`, with `--api-url` or `TTD_API_URL` overrides supported. An explicit QA build defaults to the emulator's local server, permits local cleartext traffic, uses test ads and is marked QA in the release summary. **Do not upload the QA AAB to production.** The production hostname was supplied by the developer. Its TLS handshake failed during the latest endpoint check; hosting/TLS must be completed before release connectivity can be verified.
+
+Before publishing: deploy/configure the server and persistent database/media; populate and review real content and licenses; configure production AdMob consent messages; host the privacy policy; complete actual Data safety/target audience/content rating declarations; test the signed production configuration and Play update delivery. Only free content APIs are integrated. OpenStreetMap and scheduled synchronization start enabled; events are managed through Content Studio. New cities are published only through the server. No paid services or hosting have been purchased.
+
+## Validation
+
+```powershell
+npx tsc --noEmit
+npx eslint App.tsx src __tests__ --quiet
+npm test -- --runInBand
+# from server:
+npm test
+npm audit --omit=dev
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Backend tests cover publication, indexed search, geography, expired content, auth/CSRF, budget/age constraints, itinerary timing/recalculation, provider failures, leases and deduplication. Mobile tests cover durable favorites, expiry, offline caches, unpublished content, cache deletion, adult/consent gates, banner failure, interstitial failure and frequency caps. See `QA.md` for executed build/device checks and remaining release verification.
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+If the app cannot connect, verify the server health endpoint, emulator address and release API configuration. If no experiences match a zero-dollar budget, only explicitly free records qualify. Missing child prices intentionally exclude a venue from strict group budgets. Missing images and hours remain explicit. CMake may warn about cross-drive hard links on Windows and fall back to copying. Do not change the React Native version solely to silence these warnings.

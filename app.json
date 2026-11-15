@@ -1,4 +1,8 @@
 {
   "name": "thingstodo",
-  "displayName": "thingstodo"
+  "displayName": "Things to Do",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-7831002909037560~1455645255",
+    "delay_app_measurement_init": true
+  }
 }

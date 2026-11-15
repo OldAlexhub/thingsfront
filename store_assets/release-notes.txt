@@ -1,0 +1,1 @@
+First release candidate: city discovery, filtered search, day planning, maps, local favorites and collections, itinerary export, privacy controls and accessible Android layouts. Validate production services before publishing.

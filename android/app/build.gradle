@@ -58,6 +58,16 @@ react {
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
 def enableProguardInReleaseBuilds = false
+def signingProperties = new Properties()
+def signingPropertiesFile = rootProject.file('keystore.properties')
+if (signingPropertiesFile.exists()) signingPropertiesFile.withInputStream { signingProperties.load(it) }
+def qaBuild = (findProperty('TTD_QA_BUILD') ?: 'false').toBoolean()
+def providedApiUrl = (findProperty('TTD_API_URL') ?: System.getenv('TTD_API_URL') ?: '').toString()
+def releaseConfigFile = rootProject.file('../../release-config.json')
+def productionApiUrl = releaseConfigFile.exists() ? (new groovy.json.JsonSlurper().parse(releaseConfigFile).apiUrl ?: '').toString() : ''
+def apiBaseUrl = providedApiUrl ?: (qaBuild ? 'http://10.0.2.2:3000' : productionApiUrl)
+if (apiBaseUrl && !apiBaseUrl.startsWith('https://') && !apiBaseUrl.startsWith('http://10.0.2.2:') && !apiBaseUrl.startsWith('http://127.0.0.1:')) throw new GradleException('Use HTTPS for the production API URL')
+def escapedApiUrl = apiBaseUrl.replace('\\', '\\\\').replace('"', '\\"')
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -77,15 +87,26 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.thingstodo"
+    namespace "com.oldalexhub.thingstodo"
     defaultConfig {
-        applicationId "com.thingstodo"
+        applicationId "com.oldalexhub.thingstodo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
+        buildConfigField 'String', 'API_BASE_URL', '"' + escapedApiUrl + '"'
+        buildConfigField 'boolean', 'QA_BUILD', qaBuild.toString()
+        manifestPlaceholders['ttdCleartextTraffic'] = false
     }
     signingConfigs {
+        release {
+            if (signingPropertiesFile.exists()) {
+                storeFile file(signingProperties['storeFile'])
+                storePassword signingProperties['storePassword']
+                keyAlias signingProperties['keyAlias']
+                keyPassword signingProperties['keyPassword']
+            }
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -96,18 +117,28 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders['ttdCleartextTraffic'] = true
+            buildConfigField 'String', 'API_BASE_URL', '"' + (providedApiUrl ? escapedApiUrl : 'http://10.0.2.2:3000') + '"'
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
+            manifestPlaceholders['ttdCleartextTraffic'] = qaBuild
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 }
 
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { it.project == project && it.name.toLowerCase().contains('release') } && !qaBuild && !apiBaseUrl.startsWith('https://')) {
+        throw new GradleException('Production releases require an HTTPS TTD_API_URL. Local testing requires TTD_QA_BUILD=true.')
+    }
+}
+
 dependencies {
+    implementation('com.google.android.play:app-update:2.1.0')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 

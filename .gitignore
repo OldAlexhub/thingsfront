@@ -65,6 +65,10 @@ yarn-error.log
 
 # testing
 /coverage
+.env
+android/keystore.properties
+android/app/signing/
+store_assets/screenshots/
 
 # Yarn
 .yarn/*
