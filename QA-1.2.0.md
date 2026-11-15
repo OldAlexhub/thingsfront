@@ -37,3 +37,6 @@ Google test-ad delivery verifies integration, not paid inventory or revenue. App
 - Full-screen Google Test Ads displayed after saving a day in both debug and signed release builds; their Close controls returned to the itinerary. The signed app used production units on the automatically recognized emulator test device. No advertiser link was clicked.
 - Production photo sweep: 1,055 Orlando records, 77 unique photo URLs, all returning HTTP 200 and image content types. No broken URLs found in that sweep.
 - Nexus automatically deployed the backend changes through release 16. Server-managed city activation and imports continue without an Android rebuild.
+- Final cold-start video shows the branded native logo, animated intro, then Discover with a test banner. No application fatal exception or ReactNativeJS error appeared in the captured final-session log.
+- APK and AAB copied to `\\Desktop-cakemlu\c\Backends\thingstodo-android-1.2.0`; both remote SHA-256 hashes match. Backend source copied to `\\Desktop-cakemlu\c\Backends\thingstodo-server`.
+- At the final check, 37 of the 51 configured destinations were publicly ready (50 state selections plus Orlando). Remaining first imports/retries continue on the server; this release does not claim every destination is already populated.
