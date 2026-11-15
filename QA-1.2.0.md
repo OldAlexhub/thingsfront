@@ -19,7 +19,7 @@ Executed November 15, 2026. Release verification continues below as checks compl
 - Actual Android: personalized Rollins Museum card exported as a valid 1080 by 1350 PNG; image and hashtag caption reached Android's share chooser. No external post submitted.
 - Actual Android: PNG saved through the system document picker to Downloads, with success confirmation. Visited place and personalized name survived emulator restart.
 - Actual Android: final memory editor keeps the focused name field fully visible above the keyboard. Real hotel photos, separate nightly-rate details, and upcoming event dates were inspected. A complete Google Test Ad banner rendered between event cards.
-- Actual Android: Google Maps received the starting coordinates, two ordered waypoints, final destination and driving mode. Maps itself stalled on this emulator; this establishes the app handoff, not completed navigation.
+- Actual Android: Google Maps received the starting coordinates, two ordered waypoints, final destination and driving mode. After restarting the emulator with software graphics and skipping Maps' initial sign-in screen, the signed app opened a rendered 24-minute route with all three destinations in order. No navigation journey was started.
 - Content Studio: real public source checks returned successfully with zero matching posts; dashboard and calendar editor inspected in Chromium, without page errors. Empty results are distinguished from failures.
 
 ## Coverage limits
@@ -34,6 +34,6 @@ Google test-ad delivery verifies integration, not paid inventory or revenue. App
 - APK installed as an upgrade to the production package. Existing favorites, plans and legacy visited entries were preserved; unknown legacy visit dates remain labeled as missing.
 - Live hotel search and calendar events loaded in the signed app. Actual venue photos and hotel rate wording were visually inspected.
 - The signed app exported an illustrated memory to Android's share chooser with the complete caption and #old_alex_hub. Photo-card export, PNG saving, caption copying and two visual styles were checked before the build.
-- Debug full-screen Google Test Ad displayed after saving a day and closing it returned to the itinerary. The signed app loaded production-unit test ads on the emulator.
+- Full-screen Google Test Ads displayed after saving a day in both debug and signed release builds; their Close controls returned to the itinerary. The signed app used production units on the automatically recognized emulator test device. No advertiser link was clicked.
 - Production photo sweep: 1,055 Orlando records, 77 unique photo URLs, all returning HTTP 200 and image content types. No broken URLs found in that sweep.
 - Nexus automatically deployed the backend changes through release 16. Server-managed city activation and imports continue without an Android rebuild.
