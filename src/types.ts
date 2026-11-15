@@ -50,6 +50,7 @@ export type Category = {
   kind: string;
 };
 export type Activity = {
+  kind?: 'place' | 'hotel';
   _id: string;
   cityId: string;
   title: string;
@@ -94,6 +95,7 @@ export type Activity = {
   timezone?: string;
   eventStatus?: string;
   venue?: string;
+  allDay?: boolean;
   unavailable?: boolean;
 };
 export type PlanInput = {
@@ -154,4 +156,5 @@ export type RootStackParams = {
   Itinerary: { plan: Plan };
   Map: { activities: Activity[]; title?: string };
   Legal: { kind: 'privacy' | 'terms' };
+  Memory: { activity: Activity };
 };

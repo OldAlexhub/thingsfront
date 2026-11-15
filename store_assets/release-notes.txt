@@ -1,3 +1,3 @@
-Version 1.0.1
+Version 1.2.0
 
-Connects to the live Things to Do service. Advertising starts automatically when available, with banners easier to find in Discover and Explore. Failed ad loads retry automatically. Settings now shows advertising availability and the connected server. Saved places are preserved when updating.
+Discover more US cities as their catalogs become available. Explore now includes hotels and upcoming events from connected public calendars. Open your planned day in Google Maps, with every stop kept in order. Save visited places and create personalized photo memory cards with #old_alex_hub, ready to share or save to your device.

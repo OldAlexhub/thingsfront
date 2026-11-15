@@ -69,6 +69,7 @@ export function ExploreScreen() {
     [filterOpen, setFilterOpen] = useState(false),
     [map, setMap] = useState(false),
     [events, setEvents] = useState(false),
+    [hotels, setHotels] = useState(false),
     [filters, setFilters] = useState({
       budget: '',
       duration: '',
@@ -95,14 +96,21 @@ export function ExploreScreen() {
   useEffect(() => {
     if (route.params?.category !== undefined)
       setCategory(route.params.category);
-    if (route.params?.events !== undefined) setEvents(route.params.events);
+    if (route.params?.events !== undefined) { setEvents(route.params.events); setHotels(false); }
+    if (route.params?.hotels !== undefined) {
+      setHotels(route.params.hotels);
+      if (route.params.hotels) {
+        setEvents(false);
+        setFilters(old=>({...old,budget:'',duration:'',environment:'',family:false,age:'',openNow:false,sort:'relevance'}));
+      }
+    }
     if (route.params?.map !== undefined) setMap(route.params.map);
     setPage(1);
   }, [route.params]);
   useEffect(() => {
     setPage(1);
     setItems([]);
-  }, [city?._id]);
+  }, [city?._id, events, hotels]);
   useEffect(() => {
     if (!city) return;
     const seq = ++request.current;
@@ -111,6 +119,7 @@ export function ExploreScreen() {
     setError('');
     const params = query({
       cityId: city._id,
+      kind: !events && !hotels && categories.find(c=>c._id === category)?.slug !== 'hotels' ? 'place' : undefined,
       q: debounced,
       category: category || undefined,
       page,
@@ -128,7 +137,7 @@ export function ExploreScreen() {
       from: events && filters.from ? filters.from + 'T00:00:00Z' : undefined,
       to: events && filters.to ? filters.to + 'T23:59:59Z' : undefined,
     });
-    api<Activity[]>('/' + (events ? 'events' : 'activities') + '?' + params)
+    api<Activity[]>('/' + (events ? 'events' : hotels ? 'hotels' : 'activities') + '?' + params)
       .then(result => {
         if (!active || seq !== request.current) return;
         setItems(old =>
@@ -151,7 +160,7 @@ export function ExploreScreen() {
     return () => {
       active = false;
     };
-  }, [city, debounced, category, page, filters, events, version]);
+  }, [city, debounced, category, page, filters, events, hotels, version, categories]);
   function open(a: Activity) {
     if (search.trim())
       update(old => ({
@@ -200,19 +209,20 @@ export function ExploreScreen() {
       />
       <View style={{ paddingHorizontal: 22 }}>
         <Field
-          label="Find an experience"
+          label={hotels ? 'Find a place to stay' : events ? 'Find an event' : 'Find an experience'}
           value={search}
           onChangeText={setSearch}
-          placeholder="Parks, food, art, a little adventure…"
+          placeholder={hotels ? 'Search hotels and places to stay…' : events ? 'Search upcoming events…' : 'Parks, food, art, a little adventure…'}
           returnKeyType="search"
         />
         <View style={spacing.between}>
           <View style={{ flexDirection: 'row' }}>
             <Chip
               title="Places"
-              selected={!events}
+              selected={!events && !hotels}
               onPress={() => {
                 setEvents(false);
+                setHotels(false); setCategory('');
                 setPage(1);
               }}
             />
@@ -221,9 +231,14 @@ export function ExploreScreen() {
               selected={events}
               onPress={() => {
                 setEvents(true);
+                setHotels(false); setCategory('');
                 setPage(1);
               }}
             />
+            <Chip title="Hotels" selected={hotels} onPress={() => {
+              setHotels(true); setEvents(false); setCategory(''); setPage(1);
+              setFilters(old=>({...old,budget:'',duration:'',environment:'',family:false,age:'',openNow:false,sort:'relevance'}));
+            }} />
           </View>
           <Pressable
             accessibilityRole="button"
@@ -237,7 +252,7 @@ export function ExploreScreen() {
             </Label>
           </Pressable>
         </View>
-        <ScrollView
+        {!hotels && !events && <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={{ marginBottom: 10 }}
@@ -261,7 +276,7 @@ export function ExploreScreen() {
               }}
             />
           ))}
-        </ScrollView>
+        </ScrollView>}
         {cached && (
           <Notice>
             Offline results saved {new Date(cached).toLocaleString()}.
@@ -323,7 +338,7 @@ export function ExploreScreen() {
               <Empty
                 message={
                   error ||
-                  'No matches yet. Try another category or loosen your filters.'
+                  (events ? 'No upcoming events match here yet. Calendar coverage varies by city; try another date or reset your filters.' : 'No matches yet. Try another category or loosen your filters.')
                 }
                 action={error ? 'Try again' : 'Reset filters'}
                 onAction={() => {
@@ -384,9 +399,9 @@ export function ExploreScreen() {
           />
           <SafeScrollView contentContainerStyle={{ padding: 22 }}>
             <Label muted>
-              Price filters use known listed adult admission. Group and meal
-              costs can differ.
+              {hotels ? 'Find a property by name or location. Check the hotel for nightly rates, room availability and amenities.' : 'Price filters use known listed adult admission. Group and meal costs can differ.'}
             </Label>
+            {!hotels && <>
             <View style={[spacing.row, { marginTop: 18 }]}>
               <Field
                 label="Maximum admission ($)"
@@ -439,6 +454,7 @@ export function ExploreScreen() {
             <Label muted>
               Unknown and expired hours are excluded when this is on.
             </Label>
+            </>}
             <View style={{ height: 20 }} />
             <Button
               secondary
@@ -497,7 +513,7 @@ export function ExploreScreen() {
             <View
               style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}
             >
-              {['relevance', 'distance', 'title', 'price'].map(v => (
+              {(hotels ? ['relevance','distance','title'] : ['relevance', 'distance', 'title', 'price']).map(v => (
                 <Chip
                   key={v}
                   title={v}

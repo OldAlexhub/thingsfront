@@ -13,6 +13,8 @@ import { api } from '../api';
 import { useLocal } from '../storage';
 import { useTheme } from '../theme';
 import { useAds } from '../ads';
+import { useData } from '../data';
+import { localDate } from '../memories';
 import {
   AppShell,
   SafeScrollView,
@@ -32,6 +34,7 @@ export function DetailScreen() {
     t = useTheme(),
     { state, toggleSave, update, view } = useLocal(),
     ads = useAds(),
+    {cities} = useData(),
     [a, setActivity] = useState<Activity>(route.params.activity),
     [notice, setNotice] = useState(''),
     [unavailable, setUnavailable] = useState(
@@ -184,19 +187,19 @@ export function DetailScreen() {
               }}
             >
               <Label muted style={{ fontSize: 10 }}>
-                ADMISSION
+                {a.kind === 'hotel' ? 'NIGHTLY RATES' : 'ADMISSION'}
               </Label>
               <Label
                 style={{ fontSize: 24, fontWeight: '800', marginVertical: 8 }}
               >
-                {a.priceInformation?.known
+                {a.kind === 'hotel' ? 'Check rates' : a.priceInformation?.known
                   ? a.priceInformation.adult === 0
                     ? 'Free'
                     : `$${a.priceInformation.adult}`
                   : 'Check venue'}
               </Label>
               <Label muted style={{ fontSize: 11 }}>
-                {a.priceInformation?.perGroup
+                {a.kind === 'hotel' ? 'Varies by dates & room' : a.priceInformation?.perGroup
                   ? 'Per group'
                   : 'Listed adult admission'}
               </Label>
@@ -210,17 +213,17 @@ export function DetailScreen() {
               }}
             >
               <Label muted style={{ fontSize: 10 }}>
-                TAKE YOUR TIME
+                {a.kind === 'hotel' ? 'YOUR STAY' : 'TAKE YOUR TIME'}
               </Label>
               <Label
                 style={{ fontSize: 22, fontWeight: '800', marginVertical: 8 }}
               >
-                {a.estimatedDuration
+                {a.kind === 'hotel' ? 'Stay a while' : a.estimatedDuration
                   ? `${a.estimatedDuration.min}–${a.estimatedDuration.max}`
                   : 'Varies'}
               </Label>
               <Label muted style={{ fontSize: 11 }}>
-                {a.estimatedDuration
+                {a.kind === 'hotel' ? 'Check-in times vary' : a.estimatedDuration
                   ? 'Estimated minutes'
                   : 'Plan your own pace'}
               </Label>
@@ -230,7 +233,7 @@ export function DetailScreen() {
             (a.bookingUrl || a.officialWebsite) && (
               <Button
                 secondary
-                title="Check current prices"
+                title={a.kind === 'hotel' ? 'Check rates & availability' : 'Check current prices'}
                 onPress={() => openUrl(a.bookingUrl || a.officialWebsite)}
               />
             )}
@@ -239,7 +242,7 @@ export function DetailScreen() {
           )}
           {a.startAt && (
             <Notice>
-              {new Date(a.startAt).toLocaleString('en-US', {
+              {a.allDay ? `${new Date(a.startAt).toLocaleDateString('en-US',{timeZone:'UTC'})} · All day` : new Date(a.startAt).toLocaleString('en-US', {
                 timeZone: a.timezone,
               })}{' '}
               · {a.timezone} · {a.eventStatus}
@@ -348,10 +351,12 @@ export function DetailScreen() {
                   visited: visited
                     ? old.visited.filter(v => v !== a._id)
                     : [a._id, ...old.visited].slice(0, 500),
+                  visits: visited ? old.visits.filter(v=>v.activityId!==a._id) : [{activityId:a._id,activity:a,placeTitle:a.title,cityName:cities.find(c=>c._id===a.cityId)?.name || '',visitedOn:localDate(),name:'',note:''},...old.visits.filter(v=>v.activityId!==a._id)].slice(0,500),
                 }));
                 if (!visited) void ads.completedAction();
               }}
             />
+            <Button title="Make a visited-place memory" onPress={()=>nav.navigate('Memory',{activity:a})} />
             <Button
               secondary
               title={bucket ? 'On your bucket list' : 'Add to bucket list'}

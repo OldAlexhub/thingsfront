@@ -41,6 +41,7 @@ import { DetailScreen } from './src/screens/Detail';
 import { ItineraryScreen } from './src/screens/Itinerary';
 import { MapScreen } from './src/screens/Map';
 import { LegalScreen } from './src/screens/Legal';
+import { MemoryScreen } from './src/screens/Memory';
 import type { RootStackParams } from './src/types';
 const Stack = createNativeStackNavigator<RootStackParams>(),
   Tabs = createBottomTabNavigator();
@@ -257,6 +258,7 @@ function Root() {
                 <Stack.Screen name="Itinerary" component={ItineraryScreen} />
                 <Stack.Screen name="Map" component={MapScreen} />
                 <Stack.Screen name="Legal" component={LegalScreen} />
+                <Stack.Screen name="Memory" component={MemoryScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </AdsProvider>

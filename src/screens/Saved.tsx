@@ -41,7 +41,7 @@ export function SavedScreen() {
       : tab === 'Bucket list'
       ? state.bucket
       : tab === 'Visited'
-      ? unique.filter(a => state.visited.includes(a._id))
+      ? state.visits.map(v=>({...v.activity,title:v.placeTitle}))
       : tab === 'Collections'
       ? unique.filter(a =>
           state.collections
@@ -218,10 +218,18 @@ export function SavedScreen() {
                       activity={a}
                       index={i}
                       onPress={() => {
+                        if(tab === 'Visited') { nav.navigate('Memory',{activity:a}); return; }
                         view(a);
                         nav.navigate('Detail', { activity: a });
                       }}
                     />
+                    {tab === 'Visited' && <View style={{marginBottom:20,gap:8}}>
+                      <Label muted>{state.visits.find(v=>v.activityId===a._id)?.visitedOn || 'Visit date not added'}</Label>
+                      <Button secondary title="Create or share memory" onPress={()=>nav.navigate('Memory',{activity:a})} />
+                      <Button secondary title="Remove visit" onPress={()=>Alert.alert('Remove this visit?','This deletes the memory from this device.',[
+                        {text:'Cancel',style:'cancel'},{text:'Remove',style:'destructive',onPress:()=>update(old=>({...old,visited:old.visited.filter(id=>id!==a._id),visits:old.visits.filter(v=>v.activityId!==a._id)}))}
+                      ])} />
+                    </View>}
                     {tab === 'Collections' && (
                       <Button
                         secondary

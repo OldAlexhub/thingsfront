@@ -61,7 +61,7 @@ Production interstitial: `ca-app-pub-7831002909037560/2637039990`.
 
 Debug and explicitly marked QA builds use Google's test units. Production uses the supplied units. Advertising initializes automatically and requests ads when UMP permits requests. SDK measurement is delayed. Requests are non-personalized, which does not mean no data processing. Configure applicable UMP messages in AdMob before distribution. Settings exposes privacy choices. Failed consent or ads leave the app functional.
 
-Interstitials are eligible only after marking a visit complete, after five minutes in the session, with at least 15 minutes between ads and at most three per UTC day. They are not triggered by launch, navigation, planning, exports or tab changes.
+Interstitials are eligible after marking a visit complete or saving a day, after five minutes in the session, with at least 15 minutes between ads and at most three per UTC day. They are not triggered by launch, navigation, plan generation, exports or tab changes.
 
 The version API announces latest/minimum versions. Play Core checks actual availability; a server outage or unavailable Play update never permanently locks out users. Flexible downloads request a restart; immediate update flows resume when required by Play. Validate through a Play internal testing track because sideloaded builds cannot prove Play-delivered updates.
 
@@ -102,3 +102,11 @@ npm audit --omit=dev
 Backend tests cover publication, indexed search, geography, expired content, auth/CSRF, budget/age constraints, itinerary timing/recalculation, provider failures, leases and deduplication. Mobile tests cover durable favorites, expiry, offline caches, unpublished content, cache deletion, Google consent handling, banner failure, interstitial failure and frequency caps. See `QA.md` for executed build/device checks and remaining release verification.
 
 If the app cannot connect, verify the server health endpoint, emulator address and release API configuration. If no experiences match a zero-dollar budget, only explicitly free records qualify. Missing child prices intentionally exclude a venue from strict group budgets. Missing images and hours remain explicit. CMake may warn about cross-drive hard links on Windows and fall back to copying. Do not change the React Native version solely to silence these warnings.
+
+## Version 1.2: cities, stays and memories
+
+The server enables the largest city in each US state plus Orlando. Cities appear after their first successful import; no app rebuild is required. Explore separates places, events and hotels. Public calendars are managed in Content Studio; event coverage varies by connected sources. Hotels link to properties for current rates and availability.
+
+Saved ? Visited keeps personal visit dates, names and notes. Open a visit to create a 1080 ? 1350 memory card with a licensed venue photo (or location artwork), two styles and #old_alex_hub. Share through Android, save the PNG or copy its caption. Nothing is posted automatically. Visits remain on the device until shared or deleted.
+
+Open day in Google Maps sends all stops in order. Longer days are split into numbered parts to respect mobile waypoint limits; transit uses one leg at a time. Content Studio ? Hashtag & memories checks recent public Bluesky and Mastodon results hourly, with search links and manual public-link collection for other sites. This is partial public coverage, not reach or revenue measurement.

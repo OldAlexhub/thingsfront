@@ -8,6 +8,9 @@ export const native = NativeModules.ThingsToDoNative as {
   checkForUpdate: (immediate: boolean) => Promise<string>;
   getLocation: () => Promise<{ latitude: number; longitude: number }>;
   exportFile: (filename: string, content: string) => Promise<string>;
+  shareMemory: (uri: string, caption: string) => Promise<void>;
+  saveMemoryImage: (uri: string) => Promise<string>;
+  copyText: (text: string) => Promise<void>;
 };
 export const BASE_URL = (
   native?.API_BASE_URL || (__DEV__ ? 'http://10.0.2.2:3000' : '')

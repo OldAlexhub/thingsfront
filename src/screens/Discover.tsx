@@ -36,6 +36,7 @@ import {
   spacing,
   Chip,
   openUrl,
+  Field,
 } from '../components';
 import { SafeAdContainer } from '../ads';
 import type { Activity, Home } from '../types';
@@ -340,7 +341,11 @@ export function DiscoverScreen() {
                 <SectionHeading
                   title={s.title}
                   onPress={() =>
-                    nav.navigate('Explore', { events: s.type === 'events' })
+                    nav.navigate('Explore', {
+                      events: s.type === 'events',
+                      hotels: s.items.every(item => item.kind === 'hotel'),
+                      category: '',
+                    })
                   }
                 />
                 {s.items.length ? (
@@ -408,7 +413,8 @@ export function CityPickerScreen() {
   const { cities, city, loading, error, refresh } = useData(),
     { patch } = useLocal(),
     nav = useNavigation<any>(),
-    t = useTheme();
+    t = useTheme(), [search,setSearch]=useState('');
+  const matchingCities=cities.filter(c=>`${c.name} ${c.state}`.toLowerCase().includes(search.trim().toLowerCase()));
   useFocusEffect(
     useCallback(() => {
       void refresh();
@@ -433,10 +439,12 @@ export function CityPickerScreen() {
           <Label muted style={{ marginTop: 12, marginBottom: 24 }}>
             Your next adventure starts with a place.
           </Label>
+          <Field label="Find a city or state" placeholder="New York, Arizona, Portland…" value={search} onChangeText={setSearch} />
+          <Label muted style={{fontSize:12,marginBottom:18}}>{matchingCities.length} destinations ready to explore</Label>
           {loading ? (
             <Loading />
           ) : (
-            cities.map(c => (
+            matchingCities.map(c => (
               <Pressable
                 key={c._id}
                 accessibilityRole="button"

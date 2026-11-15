@@ -185,11 +185,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </SafeAreaView>
   );
 }
-export function SafeScrollView(props: ScrollViewProps) {
+export const SafeScrollView = React.forwardRef<React.ElementRef<typeof ScrollView>, ScrollViewProps>(function SafeScrollView(props, ref) {
   const inset = useSafeAreaInsets();
   return (
     <ScrollView
       {...props}
+      ref={ref}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={[
         { paddingBottom: Math.max(inset.bottom, 18) + 30 },
@@ -197,7 +198,7 @@ export function SafeScrollView(props: ScrollViewProps) {
       ]}
     />
   );
-}
+});
 export function ScreenContainer({ children }: { children: React.ReactNode }) {
   return (
     <AppShell>
@@ -397,6 +398,7 @@ export function ExperienceIllustration({ activity }: { activity?: Activity }) {
   );
 }
 export function admissionLabel(a: Activity) {
+  if (a.kind === 'hotel') return 'Check nightly rates';
   const p = a.priceInformation;
   if (!p?.known || typeof p.adult !== 'number') return 'Check admission';
   if (p.adult === 0) return 'Free admission';
@@ -528,7 +530,7 @@ export function Card({
                 letterSpacing: 1,
               }}
             >
-              {a.priceInformation?.known ? price : 'EXPLORE'}
+              {a.kind === 'hotel' ? 'STAY' : a.priceInformation?.known ? price : a.startAt ? 'EVENT' : 'EXPLORE'}
             </Text>
           </View>
           <Pressable
@@ -569,7 +571,7 @@ export function Card({
           <Label muted style={{ fontSize: 12, marginTop: 10 }}>
             {price} ·{' '}
             {a.startAt
-              ? new Date(a.startAt).toLocaleDateString()
+              ? new Date(a.startAt).toLocaleDateString('en-US',{timeZone:a.allDay?'UTC':a.timezone,month:'short',day:'numeric'})
               : a.estimatedDuration
               ? `${a.estimatedDuration.min}–${a.estimatedDuration.max} min`
               : 'View details'}

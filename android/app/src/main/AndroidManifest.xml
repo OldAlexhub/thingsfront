@@ -12,6 +12,11 @@
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${ttdCleartextTraffic}"
       android:supportsRtl="true">
+      <provider android:name="androidx.core.content.FileProvider"
+        android:authorities="${applicationId}.memories"
+        android:exported="false" android:grantUriPermissions="true">
+        <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/memory_paths" />
+      </provider>
       <activity
         android:name=".MainActivity"
         android:theme="@style/LaunchTheme"

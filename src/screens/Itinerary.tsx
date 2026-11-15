@@ -20,6 +20,7 @@ import { api, native } from '../api';
 import { useAds } from '../ads';
 import { useLocal } from '../storage';
 import { useTheme } from '../theme';
+import { googleMapsParts } from '../maps';
 import { distanceLabel, localizeDistanceText, timeLabel } from '../units';
 import {
   AppShell,
@@ -61,6 +62,7 @@ export function ItineraryScreen() {
     [busy, setBusy] = useState(false),
     [saved, setSaved] = useState(false),
     [showNotes, setShowNotes] = useState(false);
+  const maps = googleMapsParts(plan);
   function saveDay() {
     savePlan(plan);
     setSaved(true);
@@ -323,6 +325,19 @@ export function ItineraryScreen() {
                 onPress={saveDay}
               />
               <View style={{ height: 12 }} />
+              {maps.length === 1 ? (
+                <Button secondary title="Open day in Google Maps" disabled={busy}
+                  icon={<Navigation color={t.teal} size={18} />}
+                  onPress={() => openUrl(maps[0].url)} />
+              ) : maps.length > 1 ? (
+                <View style={{gap:8}}>
+                  <Label style={{fontWeight:'700'}}>Your day in Google Maps</Label>
+                  <Label muted style={{fontSize:12}}>Open each part in order. Google Maps limits stops on mobile; every stop is included here.</Label>
+                  {maps.map((part,i) => <Button key={part.url} secondary disabled={busy}
+                    title={`${i+1}. ${part.title}`} onPress={() => openUrl(part.url)} />)}
+                </View>
+              ) : null}
+              {!!maps.length && <Label muted style={{fontSize:11,marginVertical:12}}>Opens your stops in order. Check Google Maps for current routes and travel times.</Label>}
               {busy && (
                 <Notice>Recalculating the route, timing and costs…</Notice>
               )}

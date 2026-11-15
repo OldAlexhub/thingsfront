@@ -9,6 +9,7 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, AppState } from 'react-native';
 import type { Activity, Plan } from './types';
+import type { Visit } from './memories';
 export type LocalState = {
   cityId: string;
   mode: 'local' | 'tourist';
@@ -21,6 +22,7 @@ export type LocalState = {
   favorites: Activity[];
   bucket: Activity[];
   visited: string[];
+  visits: Visit[];
   recent: Activity[];
   recentSearches: string[];
   collections: { id: string; name: string; activityIds: string[] }[];
@@ -39,6 +41,7 @@ export const initialState: LocalState = {
   favorites: [],
   bucket: [],
   visited: [],
+  visits: [],
   recent: [],
   recentSearches: [],
   collections: [],
@@ -88,6 +91,14 @@ export function normalizeState(raw: Partial<LocalState>): LocalState {
     'collections',
   ] as const)
     if (!Array.isArray(state[key])) (state as any)[key] = initialState[key];
+  const previous = Array.isArray(raw.visits) ? raw.visits : [];
+  const snapshots = [...state.favorites, ...state.bucket, ...state.recent, ...state.plans.flatMap(p=>p.stops.map(s=>s.activity))];
+  state.visits = previous.filter(v=>v && typeof v.activityId === 'string' && v.activity && state.visited.includes(v.activityId))
+    .map(v=>({...v,activity:retainedActivity(v.activity)})).slice(0,500);
+  for (const activityId of state.visited) {
+    const activity=snapshots.find(a=>a._id===activityId && !a.unavailable);
+    if (activity && !state.visits.some(v=>v.activityId===activityId)) state.visits.push({activityId,activity,placeTitle:activity.title,cityName:'',visitedOn:'',name:'',note:''});
+  }
   return state;
 }
 type Store = {
