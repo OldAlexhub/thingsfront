@@ -61,3 +61,9 @@ Production APK/AAB generation uses the configured HTTPS hostname, cleartext disa
 ## Free-API and deployment-default update
 
 OpenStreetMap is now the only registered content API. Free imports, recurring synchronization, initial seeding and secure first-run administrator creation default to enabled. The city picker refreshes its server-provided city list each time it opens. The expanded suite passes 36 backend tests and 11 mobile tests, including server-only city publication, automatic per-city job creation, provider allowlisting and administrator bootstrap preservation. The admin browser check confirmed that only OpenStreetMap is offered. Both signed artifact sets were rebuilt; the refreshed QA APK installed and the city picker was inspected successfully.
+
+## Nexus installation and startup repair
+
+Nexus bundled npm contained obsolete nested Minipass 3.3.6 copies shadowing the required shared 7.1.3. The two obsolete directories were backed up and the bundled npm installer was verified. First-run setup accepts a supplied password of at least 8 characters and preserves it. Startup failures now log safe configuration messages and close the database connection before exiting. All 39 backend tests pass, including chosen-password preservation, prompt startup failure and connection-secret redaction.
+
+Nexus Release 3 completed successfully on November 14, 2026. Direct local checks returned HTTP 200 for health, published cities, privacy policy, admin login with the configured password, and logout. Public HTTPS still fails with a TLS handshake error, so external availability is not verified.
