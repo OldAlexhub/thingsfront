@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Alert, Image, Switch } from 'react-native';
+import { View, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLocal } from '../storage';
 import { useData } from '../data';
-import { api, clearCache, native } from '../api';
+import { api, clearCache, native, BASE_URL } from '../api';
 import { useAds } from '../ads';
 import {
   AppShell,
@@ -163,19 +163,12 @@ export function SettingsScreen() {
             to our server, map services and, when enabled, Google’s advertising
             services.
           </Notice>
-          <View style={[spacing.between, { marginVertical: 18 }]}>
-            <View style={{ flex: 1 }}>
-              <Label>I am 18 or older</Label>
-              <Label muted style={{ fontSize: 12 }}>
-                Ads stay off without adult confirmation.
-              </Label>
-            </View>
-            <Switch
-              accessibilityLabel="I am 18 or older"
-              value={state.ageConfirmed}
-              onValueChange={value => patch({ ageConfirmed: value })}
-            />
-          </View>
+          <Notice>{ads.status}</Notice>
+          <Button
+            secondary
+            title="Retry advertising connection"
+            onPress={ads.retry}
+          />
           <View style={{ gap: 12 }}>
             <Button
               secondary
@@ -283,13 +276,17 @@ export function SettingsScreen() {
               Things to Do
             </Label>
             <Label muted style={{ fontSize: 12 }}>
-              Version {native?.VERSION_NAME || '1.0.0'} · Old Alex Hub
+              {native?.QA_BUILD ? 'Test build - ' : ''}Version{' '}
+              {native?.VERSION_NAME || '1.0.0'} · Old Alex Hub
             </Label>
             <Label muted style={{ fontSize: 11 }}>
-              Free with advertising when enabled.
+              Free, supported by advertising.
             </Label>
             <Label muted style={{ fontSize: 11 }}>
               info@oldalexhub.com
+            </Label>
+            <Label muted style={{ fontSize: 11 }}>
+              Server: {BASE_URL}
             </Label>
           </View>
         </View>

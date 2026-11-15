@@ -51,7 +51,7 @@ Production banner: `ca-app-pub-7831002909037560/2277947348`.
 
 Production interstitial: `ca-app-pub-7831002909037560/2637039990`.
 
-Debug and explicitly marked QA builds use Google's test units. Production uses the supplied units. Ads remain off without adult confirmation and until UMP permits requests. SDK measurement is delayed. Requests are non-personalized, which does not mean no data processing. Configure applicable UMP messages in AdMob before distribution. Settings exposes privacy choices. Failed consent or ads leave the app functional.
+Debug and explicitly marked QA builds use Google's test units. Production uses the supplied units. Advertising initializes automatically and requests ads when UMP permits requests. SDK measurement is delayed. Requests are non-personalized, which does not mean no data processing. Configure applicable UMP messages in AdMob before distribution. Settings exposes privacy choices. Failed consent or ads leave the app functional.
 
 Interstitials are eligible only after marking a visit complete, after five minutes in the session, with at least 15 minutes between ads and at most three per UTC day. They are not triggered by launch, navigation, planning, exports or tab changes.
 
@@ -76,7 +76,7 @@ The standard-library-only helper detects Android Studio Java/JBR, SDK, wrapper a
 
 **Back up `android/app/signing/upload.keystore` and `android/keystore.properties` privately and encrypted.** They are ignored by Git and never copied into public release folders. Do not replace a signing key for an existing published app. The AAB is the Play upload format. The APK is for testing. Keep versionCode increasing for subsequent releases.
 
-Production builds use `https://things.server.oldalexhub.com` from the root `release-config.json`, with `--api-url` or `TTD_API_URL` overrides supported. An explicit QA build defaults to the emulator's local server, permits local cleartext traffic, uses test ads and is marked QA in the release summary. **Do not upload the QA AAB to production.** The production hostname was supplied by the developer. Its TLS handshake failed during the latest endpoint check; hosting/TLS must be completed before release connectivity can be verified.
+Production builds use `https://things.server.oldalexhub.com` from the root `release-config.json`, with `--api-url` or `TTD_API_URL` overrides supported. An explicit QA build defaults to the emulator's local server, permits local cleartext traffic, uses test ads and is marked QA in the release summary. **Do not upload the QA AAB to production.** The production hostname was supplied by the developer. HTTPS health, city content, activity search, maps and itinerary generation were verified against the live service on November 15, 2026, including from the Android emulator. Use the production APK for phones; the local-server QA APK cannot reach this hostname.
 
 Before publishing: deploy/configure the server and persistent database/media; populate and review real content and licenses; configure production AdMob consent messages; host the privacy policy; complete actual Data safety/target audience/content rating declarations; test the signed production configuration and Play update delivery. Only free content APIs are integrated. OpenStreetMap and scheduled synchronization start enabled; events are managed through Content Studio. New cities are published only through the server. No paid services or hosting have been purchased.
 
@@ -91,6 +91,6 @@ npm test
 npm audit --omit=dev
 ```
 
-Backend tests cover publication, indexed search, geography, expired content, auth/CSRF, budget/age constraints, itinerary timing/recalculation, provider failures, leases and deduplication. Mobile tests cover durable favorites, expiry, offline caches, unpublished content, cache deletion, adult/consent gates, banner failure, interstitial failure and frequency caps. See `QA.md` for executed build/device checks and remaining release verification.
+Backend tests cover publication, indexed search, geography, expired content, auth/CSRF, budget/age constraints, itinerary timing/recalculation, provider failures, leases and deduplication. Mobile tests cover durable favorites, expiry, offline caches, unpublished content, cache deletion, Google consent handling, banner failure, interstitial failure and frequency caps. See `QA.md` for executed build/device checks and remaining release verification.
 
 If the app cannot connect, verify the server health endpoint, emulator address and release API configuration. If no experiences match a zero-dollar budget, only explicitly free records qualify. Missing child prices intentionally exclude a venue from strict group budgets. Missing images and hours remain explicit. CMake may warn about cross-drive hard links on Windows and fall back to copying. Do not change the React Native version solely to silence these warnings.

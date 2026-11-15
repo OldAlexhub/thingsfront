@@ -264,6 +264,7 @@ export function DiscoverScreen() {
             </Label>
           </Pressable>
         )}
+        <SafeAdContainer />
         <View style={{ paddingHorizontal: 22, marginTop: 24 }}>
           <Pressable
             accessibilityRole="button"
@@ -371,7 +372,6 @@ export function DiscoverScreen() {
             </View>
           ))
         )}
-        <SafeAdContainer />
         <View style={{ padding: 24, alignItems: 'center', gap: 5 }}>
           <Label style={[spacing.eyebrow, { color: t.teal }]}>
             DISCOVER. EXPLORE. EXPERIENCE.

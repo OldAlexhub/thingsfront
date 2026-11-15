@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, AppState } from 'react-native';
 import mobileAds, {
   AdsConsent,
   BannerAd,
@@ -17,32 +17,40 @@ import mobileAds, {
 } from 'react-native-google-mobile-ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { native } from './api';
-import { useLocal } from './storage';
 import { useTheme } from './theme';
 const BANNER = 'ca-app-pub-7831002909037560/2277947348',
   INTERSTITIAL = 'ca-app-pub-7831002909037560/2637039990';
 const Context = createContext({
   ready: false,
+  status: 'Checking advertising availability.',
+  retry: () => {},
   privacy: async () => {},
   completedVisit: async () => {},
 });
 export function AdsProvider({ children }: { children: React.ReactNode }) {
-  const { state } = useLocal(),
-    [ready, setReady] = useState(false),
+  const [ready, setReady] = useState(false),
+    [status, setStatus] = useState('Checking advertising availability.'),
+    [attempt, setAttempt] = useState(0),
     ad = useRef<InterstitialAd | null>(null),
     loaded = useRef(false),
     start = useRef(Date.now()),
     busy = useRef(false);
   useEffect(() => {
     let alive = true;
-    if (!state.ageConfirmed) {
-      setReady(false);
-      return;
-    }
+    setStatus('Checking advertising availability.');
     void (async () => {
       try {
-        const consent = await AdsConsent.gatherConsent();
-        if (!consent.canRequestAds || !alive) return;
+        const consent = await AdsConsent.gatherConsent().catch(() =>
+          AdsConsent.getConsentInfo(),
+        );
+        if (!alive) return;
+        if (!consent.canRequestAds) {
+          setReady(false);
+          setStatus(
+            'Google has not enabled ad requests yet. Check advertising privacy choices.',
+          );
+          return;
+        }
         await mobileAds().setRequestConfiguration({
           maxAdContentRating: MaxAdContentRating.PG,
           ...(__DEV__ || native?.QA_BUILD
@@ -51,28 +59,45 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
         });
         if (!alive) return;
         await mobileAds().initialize();
-        if (alive) setReady(true);
-      } catch {
-        if (alive) setReady(false);
+        if (alive) {
+          setReady(true);
+          setStatus('Advertising is active. Availability depends on Google.');
+        }
+      } catch (error) {
+        if (alive) {
+          setReady(false);
+          setStatus('Advertising could not start: ' + (error as Error).message);
+        }
       }
     })();
     return () => {
       alive = false;
     };
-  }, [state.ageConfirmed]);
+  }, [attempt]);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', value => {
+      if (value === 'active' && !ready) setAttempt(v => v + 1);
+    });
+    return () => subscription.remove();
+  }, [ready]);
   useEffect(() => {
     if (!ready) return;
     const interstitial = InterstitialAd.createForAdRequest(
       __DEV__ || native?.QA_BUILD ? TestIds.INTERSTITIAL : INTERSTITIAL,
       { requestNonPersonalizedAdsOnly: true },
     );
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     ad.current = interstitial;
     const callbacks = [
       interstitial.addAdEventListener(AdEventType.LOADED, () => {
         loaded.current = true;
+        console.info('ThingsToDo ads: interstitial loaded');
       }),
-      interstitial.addAdEventListener(AdEventType.ERROR, () => {
+      interstitial.addAdEventListener(AdEventType.ERROR, error => {
         loaded.current = false;
+        console.warn('ThingsToDo ads: interstitial unavailable', error.message);
+        clearTimeout(retryTimer);
+        retryTimer = setTimeout(() => interstitial.load(), 60000);
       }),
       interstitial.addAdEventListener(AdEventType.CLOSED, () => {
         loaded.current = false;
@@ -81,6 +106,7 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     ];
     interstitial.load();
     return () => {
+      clearTimeout(retryTimer);
       callbacks.forEach(fn => fn());
       interstitial.removeAllListeners();
       ad.current = null;
@@ -88,18 +114,33 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     };
   }, [ready]);
   async function privacy() {
-    setReady(false);
-    loaded.current = false;
     try {
-      const consent = await AdsConsent.showPrivacyOptionsForm();
-      if (consent.canRequestAds && state.ageConfirmed) {
+      const info = await AdsConsent.getConsentInfo();
+      if (info.privacyOptionsRequirementStatus !== 'REQUIRED') {
+        Alert.alert(
+          'Privacy choices',
+          'Google is not offering an advertising privacy form right now.',
+        );
+        return;
+      }
+      setReady(false);
+      loaded.current = false;
+      const consent = await AdsConsent.showPrivacyOptionsForm().catch(() =>
+        AdsConsent.getConsentInfo(),
+      );
+      if (consent.canRequestAds) {
         await mobileAds().initialize();
         setReady(true);
+        setStatus('Advertising is active. Availability depends on Google.');
+      } else {
+        setStatus(
+          'Google has not enabled ad requests yet. Check advertising privacy choices.',
+        );
       }
     } catch {
       Alert.alert(
         'Privacy choices',
-        'A privacy form is not available right now. Ads remain off until consent is checked again.',
+        'Privacy choices could not be checked. Please try again.',
       );
     }
   }
@@ -131,7 +172,15 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     }
   }
   return (
-    <Context.Provider value={{ ready, privacy, completedVisit }}>
+    <Context.Provider
+      value={{
+        ready,
+        status,
+        retry: () => setAttempt(v => v + 1),
+        privacy,
+        completedVisit,
+      }}
+    >
       {children}
     </Context.Provider>
   );
@@ -143,6 +192,11 @@ export function SafeAdContainer() {
   const { ready } = useAds(),
     [failed, setFailed] = useState(false),
     t = useTheme();
+  useEffect(() => {
+    if (!failed) return;
+    const timer = setTimeout(() => setFailed(false), 60000);
+    return () => clearTimeout(timer);
+  }, [failed]);
   if (!ready || failed) return null;
   return (
     <View
@@ -167,7 +221,11 @@ export function SafeAdContainer() {
         unitId={__DEV__ || native?.QA_BUILD ? TestIds.BANNER : BANNER}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-        onAdFailedToLoad={() => setFailed(true)}
+        onAdLoaded={() => console.info('ThingsToDo ads: banner loaded')}
+        onAdFailedToLoad={error => {
+          console.warn('ThingsToDo ads: banner unavailable', error.message);
+          setFailed(true);
+        }}
       />
     </View>
   );

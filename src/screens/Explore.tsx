@@ -308,6 +308,7 @@ export function ExploreScreen() {
               tintColor={t.teal}
             />
           }
+          ListHeaderComponent={items.length ? <SafeAdContainer /> : undefined}
           ListEmptyComponent={
             loading ? (
               <Loading />
@@ -351,7 +352,6 @@ export function ExploreScreen() {
                   onPress={() => setPage(p => p + 1)}
                 />
               )}
-              <SafeAdContainer />
             </View>
           }
         />

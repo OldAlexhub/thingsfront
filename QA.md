@@ -1,5 +1,7 @@
 # Executed verification
 
+Latest release: see [version 1.0.1 verification](QA-1.0.1.md). The November 14 results below are historical; the live server connection and ad startup were subsequently fixed and tested.
+
 Date: 2026-11-14. Both signed QA artifacts and a separately configured production release candidate are supplied. Neither is an approved Google Play production release.
 
 ## Results
