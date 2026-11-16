@@ -1,0 +1,87 @@
+{
+  "version": "1.2.0",
+  "package": "com.oldalexhub.thingstodo",
+  "fullDescriptionCharacters": 3080,
+  "assets": [
+    {
+      "file": "app-icon-512.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "bytes": 96159,
+      "sha256": "8a9e6ed5c9baf9bb885039c5c0fe87d1178c73bf6b64dd1ecc1ab149644b3d5a"
+    },
+    {
+      "file": "feature-graphic-1024x500.png",
+      "width": 1024,
+      "height": 500,
+      "mode": "RGB",
+      "bytes": 79717,
+      "sha256": "25d0dd977c7e55760c0daaf7c6f4a95004708cb6198a4a1dcaf14e73322473b5"
+    },
+    {
+      "file": "phone-screenshots/01-explore.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 609335,
+      "sha256": "cf93ba1f0d57702fd208d7d3f8e25170d143e366a581d9875268e40276c3d90b"
+    },
+    {
+      "file": "phone-screenshots/02-hotels.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 747455,
+      "sha256": "c420b643c2167823bed091e97e2d80010ac56391aed0dd711c87efa16ce2f018"
+    },
+    {
+      "file": "phone-screenshots/03-planner.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 172675,
+      "sha256": "2ea292cb5d24a0a274e9254e338b297c6796ab3c3e290f4856437408bbf5a499"
+    },
+    {
+      "file": "phone-screenshots/04-itinerary.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 672170,
+      "sha256": "435d10227fb311e35c42fa45853d2b505120820a339e096a3d15cd2071252721"
+    },
+    {
+      "file": "phone-screenshots/05-details.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 791200,
+      "sha256": "9212e1c320da008d9bf79fdd29294323cfa75f65ee9d8048a474afd320440ca0"
+    },
+    {
+      "file": "phone-screenshots/06-memory.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 697675,
+      "sha256": "36b4d2940083a0d660fed38b5d07aa793ff56d820a6aa410c82029926f2ddeb7"
+    },
+    {
+      "file": "phone-screenshots/07-settings.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 143625,
+      "sha256": "7406ba2de7c8782eb495cd68dc00685b74f3052a4d7bca42540349bf0ebdaf98"
+    },
+    {
+      "file": "phone-screenshots/08-cities.png",
+      "width": 1080,
+      "height": 1920,
+      "mode": "RGB",
+      "bytes": 991387,
+      "sha256": "bd5c97c78b0859fc9286aee8c6233e4dd6c920d17b5199a69e9323f77b2928f8"
+    }
+  ]
+}

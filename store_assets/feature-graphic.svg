@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101827"/><stop offset="1" stop-color="#155E75"/></linearGradient>
+    <linearGradient id="card" x2="1" y2="1"><stop stop-color="#F8F6F0"/><stop offset="1" stop-color="#E6F3EF"/></linearGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  <g fill="none" stroke="#72C8BF" stroke-width="1.5" opacity=".13">
+    <path d="M564-80C473 64 572 152 686 146S882 157 879 290 1025 398 1100 350"/>
+    <path d="M590-90C499 54 598 178 712 172S908 183 905 316 1051 424 1126 376"/>
+    <path d="M616-100C525 44 624 204 738 198S934 209 931 342 1077 450 1152 402"/>
+    <path d="M642-110C551 34 650 230 764 224S960 235 957 368 1103 476 1178 428"/>
+    <path d="M-80 412C62 351 117 479 270 475S414 502 488 562"/>
+    <path d="M-80 436C62 375 117 503 270 499S414 526 488 586"/>
+  </g>
+  <circle cx="928" cy="40" r="102" fill="#FFB454" opacity=".12"/>
+  <circle cx="961" cy="21" r="65" fill="#FFB454" opacity=".08"/>
+  <g font-family="Segoe UI, sans-serif">
+    <rect x="72" y="76" width="31" height="5" rx="2.5" fill="#12B8A6"/>
+    <text x="117" y="87" font-size="24" font-weight="600" fill="#F8F6F0">Things to Do</text>
+    <text x="68" y="207" font-size="65" font-weight="700" letter-spacing="-2" fill="#F8F6F0">A day less</text>
+    <text x="68" y="278" font-size="65" font-weight="700" letter-spacing="-2" fill="#F8F6F0">ordinary.</text>
+    <text x="72" y="335" font-size="22" fill="#BEE3DE">Find your places. Make your memories.</text>
+    <text x="72" y="416" font-size="15" letter-spacing="2.5" font-weight="600" fill="#FFB454">DISCOVER. EXPLORE. EXPERIENCE.</text>
+  </g>
+  <path d="M700 124C825 124 865 170 850 244S693 259 693 362" stroke="#FFB454" stroke-width="3" stroke-dasharray="4 10" stroke-linecap="round" fill="none"/>
+  <g font-family="Segoe UI, sans-serif" font-weight="600" font-size="20" fill="#101827">
+    <rect x="617" y="81" width="199" height="88" rx="23" fill="#091D2A" opacity=".25" transform="translate(0 7)"/>
+    <rect x="617" y="81" width="199" height="88" rx="23" fill="url(#card)"/>
+    <circle cx="662" cy="125" r="26" fill="#D8EDE4"/>
+    <path d="M662 104C650 104 644 117 651 127L662 142 673 127C680 117 674 104 662 104Z" fill="#098477"/>
+    <circle cx="662" cy="117" r="5" fill="#F8F6F0"/>
+    <text x="701" y="132">Explore</text>
+    <rect x="745" y="210" width="199" height="88" rx="23" fill="#091D2A" opacity=".25" transform="translate(0 7)"/>
+    <rect x="745" y="210" width="199" height="88" rx="23" fill="url(#card)"/>
+    <circle cx="790" cy="254" r="26" fill="#F8E5C9"/>
+    <path d="M780 242H801M780 254H796M780 266H801" stroke="#94601D" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="773" cy="242" r="2" fill="#94601D"/><circle cx="773" cy="254" r="2" fill="#94601D"/><circle cx="773" cy="266" r="2" fill="#94601D"/>
+    <text x="829" y="261">Plan</text>
+    <rect x="607" y="337" width="230" height="88" rx="23" fill="#091D2A" opacity=".25" transform="translate(0 7)"/>
+    <rect x="607" y="337" width="230" height="88" rx="23" fill="url(#card)"/>
+    <circle cx="652" cy="381" r="26" fill="#D8EDE4"/>
+    <rect x="636" y="369" width="32" height="24" rx="5" fill="none" stroke="#098477" stroke-width="2.5"/>
+    <path d="M644 369L647 364H657L660 369" fill="none" stroke="#098477" stroke-width="2.5"/>
+    <circle cx="652" cy="381" r="7" fill="none" stroke="#098477" stroke-width="2.5"/>
+    <text x="691" y="388">Remember</text>
+  </g>
+</svg>

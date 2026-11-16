@@ -1,6 +1,6 @@
 Make room for a day less ordinary.
 
-Things to Do: Day Planner helps you discover experiences and put together a day around your interests, time, group and admission budget. Start with Orlando, Florida, and explore new destinations as they become available.
+Things to Do: Day Planner helps you discover experiences and put together a day around your interests, time, group and admission budget. Explore available US destinations, with additional city catalogs published from the server.
 
 DISCOVER YOUR KIND OF DAY
 Browse server-published attractions, outdoor places, food, upcoming events, hotels and curated collections. Search by category and filter activities by known price, duration, setting, age suitability and location. Check hotel rates directly with the property. Available content and event calendars vary by destination.
@@ -19,3 +19,27 @@ Free with advertising when enabled. Internet access is required for fresh discov
 Discover. Explore. Experience.
 Developed by Old Alex Hub
 Support: info@oldalexhub.com
+
+SCREENSHOT PHOTO CREDITS
+Venue photos are shown within actual app captures. The app scales/crops photos for its cards. Original photos and their licenses are linked below. Licenses apply to the respective photographic material; no venue endorsement is implied.
+
+Orlando Museum of Art — Ebyabe, CC BY-SA 3.0
+https://commons.wikimedia.org/wiki/File:Orlando_FL_Museum_of_Art01.jpg
+
+Orlando World Center Marriott — Bernard Gagnon, CC BY-SA 3.0
+https://commons.wikimedia.org/wiki/File:Orlando_World_Center_Marriott_03.jpg
+
+Walt Disney World Swan — Traveler100, CC BY-SA 4.0
+https://commons.wikimedia.org/wiki/File:Swan-hotel.jpg
+
+Lake Eola and Orlando Skyline — JER3L1337, CC BY 4.0
+https://commons.wikimedia.org/wiki/File:Lake_Eola_and_Orlando_Skyline_seen_in_2024.jpg
+
+The Grove at Mead Botanical Garden — Jennaraehn, CC0
+https://commons.wikimedia.org/wiki/File:The_Grove_at_Mead_Botanical_Garden.jpg
+
+Harwood School, Albuquerque — John Phelan, CC BY 3.0
+https://commons.wikimedia.org/wiki/File:Harwood_School,_Albuquerque_NM.jpg
+
+SciTrek entrance, Atlanta — Scott Ehardt, public domain
+https://commons.wikimedia.org/wiki/File:SciTrek_entrance.jpg

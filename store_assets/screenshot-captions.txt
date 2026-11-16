@@ -1,8 +1,8 @@
-01 Discover a day less ordinary
-02 Follow your curiosity
+01 Follow your curiosity
+02 Find a place to stay
 03 Your day. Your way.
-04 Know a little more before you go
-05 Find your next experience on the map
-06 Make a day of it
-07 Keep the good ideas
-08 Make yourself at home
+04 Take your day to Google Maps
+05 Know a little more before you go
+06 You were here
+07 Make yourself at home
+08 Where will today take you?
